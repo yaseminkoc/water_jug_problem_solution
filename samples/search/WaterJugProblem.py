@@ -5,12 +5,13 @@ from simpleai.search import SearchProblem
 from simpleai.search.traditional import breadth_first, depth_first, limited_depth_first, iterative_limited_depth_first, uniform_cost
 #from simpleai.search.viewers import WebViewer
 #from simpleai.search.viewers import ConsoleViewer
+import time
+
 from simpleai.search.viewers import BaseViewer
 capacities = [0,0,0]
 targets = [0,0,0]
 
 class WaterJugProblem(SearchProblem):
-    costOfAlgorithm = 0
     def __init__(self, initial_state=None, graph_search=None, viewer=None,  depth_limit=None):
         self.initial_state = initial_state
         self.graph_search = graph_search
@@ -79,8 +80,20 @@ class WaterJugProblem(SearchProblem):
 
 
     def cost(self, state, action, state2):
-        self.costOfAlgorithm+=1
-        return 1
+        if action == "Fill Jug1":
+            return capacities[0] - state[0]
+        elif action == "Fill Jug2":
+            return capacities[1] - state[1]
+        elif action == "Fill Jug3":
+            return capacities[2] - state[2]
+        elif action == "Empty Jug1":
+            return state[0]
+        elif action == "Empty Jug2":
+            return state[1]
+        elif action == "Empty Jug3":
+            return state[2]
+        else:
+            return 1
 
     def is_goal(self, state):
        return bool(list(state) == targets)
@@ -250,13 +263,20 @@ def test():
             my_viewer = BaseViewer()
             print("Applying " , s.__name__)
             if s.__name__ == "limited_depth_first":
-                result = s(p, graph_search = True, depth_limit=None, viewer= my_viewer)
-            else: result = s(p, graph_search = True, viewer= my_viewer)
+                tic = time.perf_counter()
+                result = s(p, depth_limit=None, graph_search= True, viewer= my_viewer)
+                toc = time.perf_counter()
+            else:
+                tic = time.perf_counter()
+                result = s(p, graph_search= True, viewer= my_viewer)
+                toc = time.perf_counter()
+
             print("Resulting state: ", result.state)
             print("Resulting path:")
             for i in range(len(result.path())):
                 print(i," . ", result.path()[i])
             print("Total cost: ", len(result.path())-1)
+            print(f"{s.__name__} runs {toc - tic:0.4f} seconds")
             print("Viewer stats: \n", "max_fringe_size: ", my_viewer.stats, "\n\n" )
 
 
